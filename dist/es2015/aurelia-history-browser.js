@@ -189,7 +189,10 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
 
     this.fragment = fragment;
 
-    url = this.root + fragment;
+    url = fragment;
+    if (this._hasPushState) {
+      url = this.root + url;
+    }
 
     if (fragment === '' && url !== '/') {
       url = url.slice(0, -1);

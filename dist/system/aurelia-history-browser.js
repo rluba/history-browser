@@ -269,7 +269,10 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
 
           this.fragment = fragment;
 
-          url = this.root + fragment;
+          url = fragment;
+          if (this._hasPushState) {
+            url = this.root + url;
+          }
 
           if (fragment === '' && url !== '/') {
             url = url.slice(0, -1);
