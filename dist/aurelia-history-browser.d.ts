@@ -135,11 +135,17 @@ export declare class BrowserHistory extends History {
   /**
      * Causes a history navigation to occur.
      *
-     * @param fragment The history fragment to navigate to.
+     * @param url URL to navigate to.
      * @param options The set of options that specify how the navigation should occur.
-     * @return True if navigation occurred/false otherwise.
+     * @return Promise if triggering navigation, otherwise true/false indicating if navigation occured.
      */
-  navigate(fragment?: string, undefined?: any): boolean;
+  navigate(url?: string, {
+    trigger,
+    replace
+  }?: {
+    trigger?: any,
+    replace?: any
+  }): Promise | boolean;
   
   /**
      * Causes the history state to navigate back.
