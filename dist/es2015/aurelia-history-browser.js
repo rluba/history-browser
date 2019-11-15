@@ -165,7 +165,6 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
   }
 
   navigate(url, { trigger = true, replace = false } = {}) {
-    this.ea.publish('history:navigate', { url, options: { trigger, replace } });
 
     if (url) {
       let isOutbound = false;
@@ -174,8 +173,8 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
       } else if (this._hasPushState && url.indexOf('/') === 0 && url.indexOf(this.root) !== 0) {
         isOutbound = true;
       }
-
       if (isOutbound) {
+        this.ea.publish('history:navigate', { url, isOutbound, options: { trigger, replace } });
         this.location.href = url;
         return true;
       }
@@ -204,6 +203,11 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
 
     if (this._hasPushState) {
       url = url.replace('//', '/');
+    }
+
+    this.ea.publish('history:navigate', { url, options: { trigger, replace } });
+
+    if (this._hasPushState) {
       this.history[replace ? 'replaceState' : 'pushState']({}, DOM.title, url);
     } else if (this._wantsHashChange) {
       updateHash(this.location, fragment, replace);

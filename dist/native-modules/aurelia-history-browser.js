@@ -197,8 +197,6 @@ export var BrowserHistory = (_temp = _class = function (_History) {
         _ref$replace = _ref.replace,
         replace = _ref$replace === undefined ? false : _ref$replace;
 
-    this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
-
     if (url) {
       var isOutbound = false;
       if (absoluteUrl.test(url)) {
@@ -206,8 +204,8 @@ export var BrowserHistory = (_temp = _class = function (_History) {
       } else if (this._hasPushState && url.indexOf('/') === 0 && url.indexOf(this.root) !== 0) {
         isOutbound = true;
       }
-
       if (isOutbound) {
+        this.ea.publish('history:navigate', { url: url, isOutbound: isOutbound, options: { trigger: trigger, replace: replace } });
         this.location.href = url;
         return true;
       }
@@ -236,6 +234,11 @@ export var BrowserHistory = (_temp = _class = function (_History) {
 
     if (this._hasPushState) {
       url = url.replace('//', '/');
+    }
+
+    this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
+
+    if (this._hasPushState) {
       this.history[replace ? 'replaceState' : 'pushState']({}, DOM.title, url);
     } else if (this._wantsHashChange) {
       updateHash(this.location, fragment, replace);
