@@ -2,6 +2,7 @@ var _class, _temp;
 
 import { DOM, PLATFORM } from 'aurelia-pal';
 import { History } from 'aurelia-history';
+import { EventAggregator } from 'aurelia-event-aggregator';
 
 export let LinkHandler = class LinkHandler {
   activate(history) {}
@@ -89,7 +90,7 @@ export function configure(config) {
 }
 
 export let BrowserHistory = (_temp = _class = class BrowserHistory extends History {
-  constructor(linkHandler) {
+  constructor(linkHandler, ea) {
     super();
 
     this._isActive = false;
@@ -98,6 +99,7 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
     this.location = PLATFORM.location;
     this.history = PLATFORM.history;
     this.linkHandler = linkHandler;
+    this.ea = ea;
   }
 
   activate(options) {
@@ -163,6 +165,8 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
   }
 
   navigate(url, { trigger = true, replace = false } = {}) {
+    this.ea.publish('history:navigate', { url, options: { trigger, replace } });
+
     if (url) {
       let isOutbound = false;
       if (absoluteUrl.test(url)) {
@@ -269,7 +273,7 @@ export let BrowserHistory = (_temp = _class = class BrowserHistory extends Histo
 
     return this.options.routeHandler ? this.options.routeHandler(fragment) : false;
   }
-}, _class.inject = [LinkHandler], _temp);
+}, _class.inject = [LinkHandler, EventAggregator], _temp);
 
 const routeStripper = /^#?\/*|\s+$/g;
 

@@ -1,4 +1,4 @@
-define(['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureliaPal, _aureliaHistory) {
+define(['exports', 'aurelia-pal', 'aurelia-history', 'aurelia-event-aggregator'], function (exports, _aureliaPal, _aureliaHistory, _aureliaEventAggregator) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -138,7 +138,7 @@ define(['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureli
   var BrowserHistory = exports.BrowserHistory = (_temp = _class = function (_History) {
     _inherits(BrowserHistory, _History);
 
-    function BrowserHistory(linkHandler) {
+    function BrowserHistory(linkHandler, ea) {
       
 
       var _this2 = _possibleConstructorReturn(this, _History.call(this));
@@ -149,6 +149,7 @@ define(['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureli
       _this2.location = _aureliaPal.PLATFORM.location;
       _this2.history = _aureliaPal.PLATFORM.history;
       _this2.linkHandler = linkHandler;
+      _this2.ea = ea;
       return _this2;
     }
 
@@ -220,6 +221,8 @@ define(['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureli
           trigger = _ref$trigger === undefined ? true : _ref$trigger,
           _ref$replace = _ref.replace,
           replace = _ref$replace === undefined ? false : _ref$replace;
+
+      this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
 
       if (url) {
         var isOutbound = false;
@@ -333,7 +336,7 @@ define(['exports', 'aurelia-pal', 'aurelia-history'], function (exports, _aureli
     };
 
     return BrowserHistory;
-  }(_aureliaHistory.History), _class.inject = [LinkHandler], _temp);
+  }(_aureliaHistory.History), _class.inject = [LinkHandler, _aureliaEventAggregator.EventAggregator], _temp);
 
   var routeStripper = /^#?\/*|\s+$/g;
 

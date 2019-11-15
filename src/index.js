@@ -1,4 +1,5 @@
 import {History} from 'aurelia-history';
+import {EventAggregator} from 'aurelia-event-aggregator';
 import {LinkHandler, DefaultLinkHandler} from './link-handler';
 import {DOM, PLATFORM} from 'aurelia-pal';
 
@@ -15,13 +16,13 @@ export function configure(config: Object): void {
  * An implementation of the basic history API.
  */
 export class BrowserHistory extends History {
-  static inject = [LinkHandler];
+  static inject = [LinkHandler, EventAggregator];
 
   /**
    * Creates an instance of BrowserHistory
    * @param linkHandler An instance of LinkHandler.
    */
-  constructor(linkHandler: LinkHandler) {
+  constructor(linkHandler: LinkHandler, ea: EventAggregator) {
     super();
 
     this._isActive = false;
@@ -30,6 +31,7 @@ export class BrowserHistory extends History {
     this.location = PLATFORM.location;
     this.history = PLATFORM.history;
     this.linkHandler = linkHandler;
+    this.ea = ea;
   }
 
   /**
@@ -124,6 +126,8 @@ export class BrowserHistory extends History {
    * @return Promise if triggering navigation, otherwise true/false indicating if navigation occured.
    */
   navigate(url?: string, {trigger = true, replace = false} = {}): Promise|boolean {
+    this.ea.publish('history:navigate', {url, options: {trigger, replace}});
+
     if (url) {
       let isOutbound = false;
       if (absoluteUrl.test(url)) {

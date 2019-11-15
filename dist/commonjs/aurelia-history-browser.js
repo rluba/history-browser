@@ -13,6 +13,8 @@ var _aureliaPal = require('aurelia-pal');
 
 var _aureliaHistory = require('aurelia-history');
 
+var _aureliaEventAggregator = require('aurelia-event-aggregator');
+
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -122,7 +124,7 @@ function configure(config) {
 var BrowserHistory = exports.BrowserHistory = (_temp = _class = function (_History) {
   _inherits(BrowserHistory, _History);
 
-  function BrowserHistory(linkHandler) {
+  function BrowserHistory(linkHandler, ea) {
     
 
     var _this2 = _possibleConstructorReturn(this, _History.call(this));
@@ -133,6 +135,7 @@ var BrowserHistory = exports.BrowserHistory = (_temp = _class = function (_Histo
     _this2.location = _aureliaPal.PLATFORM.location;
     _this2.history = _aureliaPal.PLATFORM.history;
     _this2.linkHandler = linkHandler;
+    _this2.ea = ea;
     return _this2;
   }
 
@@ -204,6 +207,8 @@ var BrowserHistory = exports.BrowserHistory = (_temp = _class = function (_Histo
         trigger = _ref$trigger === undefined ? true : _ref$trigger,
         _ref$replace = _ref.replace,
         replace = _ref$replace === undefined ? false : _ref$replace;
+
+    this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
 
     if (url) {
       var isOutbound = false;
@@ -317,7 +322,7 @@ var BrowserHistory = exports.BrowserHistory = (_temp = _class = function (_Histo
   };
 
   return BrowserHistory;
-}(_aureliaHistory.History), _class.inject = [LinkHandler], _temp);
+}(_aureliaHistory.History), _class.inject = [LinkHandler, _aureliaEventAggregator.EventAggregator], _temp);
 
 var routeStripper = /^#?\/*|\s+$/g;
 

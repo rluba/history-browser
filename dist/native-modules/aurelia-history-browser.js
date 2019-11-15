@@ -8,6 +8,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 import { DOM, PLATFORM } from 'aurelia-pal';
 import { History } from 'aurelia-history';
+import { EventAggregator } from 'aurelia-event-aggregator';
 
 export var LinkHandler = function () {
   function LinkHandler() {
@@ -112,7 +113,7 @@ export function configure(config) {
 export var BrowserHistory = (_temp = _class = function (_History) {
   _inherits(BrowserHistory, _History);
 
-  function BrowserHistory(linkHandler) {
+  function BrowserHistory(linkHandler, ea) {
     
 
     var _this2 = _possibleConstructorReturn(this, _History.call(this));
@@ -123,6 +124,7 @@ export var BrowserHistory = (_temp = _class = function (_History) {
     _this2.location = PLATFORM.location;
     _this2.history = PLATFORM.history;
     _this2.linkHandler = linkHandler;
+    _this2.ea = ea;
     return _this2;
   }
 
@@ -194,6 +196,8 @@ export var BrowserHistory = (_temp = _class = function (_History) {
         trigger = _ref$trigger === undefined ? true : _ref$trigger,
         _ref$replace = _ref.replace,
         replace = _ref$replace === undefined ? false : _ref$replace;
+
+    this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
 
     if (url) {
       var isOutbound = false;
@@ -307,7 +311,7 @@ export var BrowserHistory = (_temp = _class = function (_History) {
   };
 
   return BrowserHistory;
-}(History), _class.inject = [LinkHandler], _temp);
+}(History), _class.inject = [LinkHandler, EventAggregator], _temp);
 
 var routeStripper = /^#?\/*|\s+$/g;
 
