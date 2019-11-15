@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context) {
+System.register(['aurelia-pal', 'aurelia-history', 'aurelia-event-aggregator'], function (_export, _context) {
   "use strict";
 
-  var DOM, PLATFORM, History, _class, _temp, LinkHandler, DefaultLinkHandler, BrowserHistory, routeStripper, rootStripper, trailingSlash, absoluteUrl;
+  var DOM, PLATFORM, History, EventAggregator, _class, _temp, LinkHandler, DefaultLinkHandler, BrowserHistory, routeStripper, rootStripper, trailingSlash, absoluteUrl;
 
   function _possibleConstructorReturn(self, call) {
     if (!self) {
@@ -56,6 +56,8 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
       PLATFORM = _aureliaPal.PLATFORM;
     }, function (_aureliaHistory) {
       History = _aureliaHistory.History;
+    }, function (_aureliaEventAggregator) {
+      EventAggregator = _aureliaEventAggregator.EventAggregator;
     }],
     execute: function () {
       _export('LinkHandler', LinkHandler = function () {
@@ -160,7 +162,7 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
       _export('BrowserHistory', BrowserHistory = (_temp = _class = function (_History) {
         _inherits(BrowserHistory, _History);
 
-        function BrowserHistory(linkHandler) {
+        function BrowserHistory(linkHandler, ea) {
           
 
           var _this2 = _possibleConstructorReturn(this, _History.call(this));
@@ -171,6 +173,7 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
           _this2.location = PLATFORM.location;
           _this2.history = PLATFORM.history;
           _this2.linkHandler = linkHandler;
+          _this2.ea = ea;
           return _this2;
         }
 
@@ -250,8 +253,8 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
             } else if (this._hasPushState && url.indexOf('/') === 0 && url.indexOf(this.root) !== 0) {
               isOutbound = true;
             }
-
             if (isOutbound) {
+              this.ea.publish('history:navigate', { url: url, isOutbound: isOutbound, options: { trigger: trigger, replace: replace } });
               this.location.href = url;
               return true;
             }
@@ -280,6 +283,11 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
 
           if (this._hasPushState) {
             url = url.replace('//', '/');
+          }
+
+          this.ea.publish('history:navigate', { url: url, options: { trigger: trigger, replace: replace } });
+
+          if (this._hasPushState) {
             this.history[replace ? 'replaceState' : 'pushState']({}, DOM.title, url);
           } else if (this._wantsHashChange) {
             updateHash(this.location, fragment, replace);
@@ -355,7 +363,7 @@ System.register(['aurelia-pal', 'aurelia-history'], function (_export, _context)
         };
 
         return BrowserHistory;
-      }(History), _class.inject = [LinkHandler], _temp));
+      }(History), _class.inject = [LinkHandler, EventAggregator], _temp));
 
       _export('BrowserHistory', BrowserHistory);
 

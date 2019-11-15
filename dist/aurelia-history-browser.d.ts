@@ -5,6 +5,9 @@ import {
 import {
   History
 } from 'aurelia-history';
+import {
+  EventAggregator
+} from 'aurelia-event-aggregator';
 
 /**
  * Provides information about how to handle an anchor event.
@@ -112,7 +115,7 @@ export declare class BrowserHistory extends History {
      * Creates an instance of BrowserHistory
      * @param linkHandler An instance of LinkHandler.
      */
-  constructor(linkHandler: LinkHandler);
+  constructor(linkHandler: LinkHandler, ea: EventAggregator);
   
   /**
      * Activates the history object.

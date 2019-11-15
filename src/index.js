@@ -1,4 +1,5 @@
 import {History} from 'aurelia-history';
+import {EventAggregator} from 'aurelia-event-aggregator';
 import {LinkHandler, DefaultLinkHandler} from './link-handler';
 import {DOM, PLATFORM} from 'aurelia-pal';
 
@@ -15,13 +16,13 @@ export function configure(config: Object): void {
  * An implementation of the basic history API.
  */
 export class BrowserHistory extends History {
-  static inject = [LinkHandler];
+  static inject = [LinkHandler, EventAggregator];
 
   /**
    * Creates an instance of BrowserHistory
    * @param linkHandler An instance of LinkHandler.
    */
-  constructor(linkHandler: LinkHandler) {
+  constructor(linkHandler: LinkHandler, ea: EventAggregator) {
     super();
 
     this._isActive = false;
@@ -30,6 +31,7 @@ export class BrowserHistory extends History {
     this.location = PLATFORM.location;
     this.history = PLATFORM.history;
     this.linkHandler = linkHandler;
+    this.ea = ea;
   }
 
   /**
@@ -124,6 +126,7 @@ export class BrowserHistory extends History {
    * @return Promise if triggering navigation, otherwise true/false indicating if navigation occured.
    */
   navigate(url?: string, {trigger = true, replace = false} = {}): Promise|boolean {
+
     if (url) {
       let isOutbound = false;
       if (absoluteUrl.test(url)) {
@@ -132,8 +135,8 @@ export class BrowserHistory extends History {
         // Absolute path with a different root
         isOutbound = true;
       }
-
       if (isOutbound) {
+        this.ea.publish('history:navigate', {url, isOutbound, options: {trigger, replace}});
         this.location.href = url;
         return true;
       }
@@ -164,7 +167,12 @@ export class BrowserHistory extends History {
     // If pushState is available, we use it to set the url as a real URL.
     if (this._hasPushState) {
       url = url.replace('//', '/');
-      this.history[replace ? 'replaceState' : 'pushState']({}, DOM.title, url);
+    }
+
+    this.ea.publish('history:navigate', {url, options: {trigger, replace}});
+
+    if (this._hasPushState) {
+          this.history[replace ? 'replaceState' : 'pushState']({}, DOM.title, url);
     } else if (this._wantsHashChange) {
       // If hash changes haven't been explicitly disabled, update the hash
       // fragment to store history.
